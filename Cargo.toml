@@ -6,7 +6,7 @@ description = "Detached JSON Web Signature for Rust"
 documentation = "http://docs.rs/detached-jws/"
 repository = "http://github.com/nigma143/rust-detached-jws"
 readme = "README.md"
-keywords = ["detached", "JWS", "JWT", "JSON", "web", "token"]
+keywords = ["detached", "JWS", "JSON", "web", "detached-payload"]
 license  = "BSD-2-Clause"
 edition = "2018"
 
