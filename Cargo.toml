@@ -1,6 +1,6 @@
 [package]
 name = "detached-jws"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Irek Nigmatullin <nigma143@mail.ru>"]
 description = "Detached JSON Web Signature for Rust"
 documentation = "http://docs.rs/detached-jws/"
