@@ -65,13 +65,12 @@ fn dummy_signer() {
         "test_algorithm".to_owned(),
         header,
         &mut payload.as_slice(),
-        &mut DummySigner::default(),
+        DummySigner::default(),
     )
     .unwrap();
 
     let verified_headers =
-        detached_jws::deserialize(&jws, &mut payload.as_slice(), &mut DummyVerifier::default())
-            .unwrap();
+        detached_jws::deserialize(&jws, &mut payload.as_slice(), DummyVerifier::default()).unwrap();
 
     assert_eq!(
         verified_headers.get("custom").unwrap().as_str().unwrap(),
@@ -91,13 +90,13 @@ fn select_dummy_signer() {
         "test_algorithm".to_owned(),
         header,
         &mut payload.as_slice(),
-        &mut DummySigner::default(),
+        DummySigner::default(),
     )
     .unwrap();
 
     let verified_headers = detached_jws::deserialize_selector(&jws, &mut payload.as_slice(), |h| {
         match h.get("signer").unwrap() {
-            Value::String(ref v) if v == "this" => Some(Box::new(DummyVerifier::default())),
+            Value::String(ref v) if v == "this" => Some(DummyVerifier::default()),
             _ => None,
         }
     })
@@ -122,14 +121,14 @@ fn openssl_ps256() {
         "PS256".to_owned(),
         Map::new(),
         &mut payload.as_slice(),
-        &mut signer,
+        signer,
     )
     .unwrap();
 
     let mut verifier = Verifier::new(MessageDigest::sha256(), &keypair).unwrap();
     verifier.set_rsa_padding(Padding::PKCS1_PSS).unwrap();
 
-    detached_jws::deserialize(&jws, &mut payload.as_slice(), &mut verifier).unwrap();
+    detached_jws::deserialize(&jws, &mut payload.as_slice(), verifier).unwrap();
 }
 
 #[test]
@@ -141,17 +140,15 @@ fn selector_openssl() {
             PKey::from_rsa(Rsa::generate(2048).unwrap()).unwrap();
     }
 
-    let selector = |h: &JwsHeader| -> Option<Box<dyn Verify>> {
+    let selector = |h: &JwsHeader| -> Option<Verifier> {
         match h.get("alg").unwrap() {
             Value::String(ref v) if v == "RS256" => {
-                let mut verifier =
-                    Box::new(Verifier::new(MessageDigest::sha256(), &KEYPAIR_RS256).unwrap());
+                let mut verifier = Verifier::new(MessageDigest::sha256(), &KEYPAIR_RS256).unwrap();
                 verifier.set_rsa_padding(Padding::PKCS1).unwrap();
                 Some(verifier)
             }
             Value::String(ref v) if v == "PS256" => {
-                let mut verifier =
-                    Box::new(Verifier::new(MessageDigest::sha256(), &KEYPAIR_PS256).unwrap());
+                let mut verifier = Verifier::new(MessageDigest::sha256(), &KEYPAIR_PS256).unwrap();
                 verifier.set_rsa_padding(Padding::PKCS1_PSS).unwrap();
                 Some(verifier)
             }

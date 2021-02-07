@@ -19,15 +19,15 @@ fn seriliaze_openssl_ps256_bench(b: &mut Bencher, &size: &usize) {
 
     let keypair = PKey::from_rsa(Rsa::generate(2048).unwrap()).unwrap();
 
-    let mut signer = Signer::new(MessageDigest::sha256(), &keypair).unwrap();
-    signer.set_rsa_padding(Padding::PKCS1_PSS).unwrap();
-
     b.iter(|| {
+        let mut signer = Signer::new(MessageDigest::sha256(), &keypair).unwrap();
+        signer.set_rsa_padding(Padding::PKCS1_PSS).unwrap();
+
         let _ = detached_jws::serialize(
             "PS256".to_owned(),
             Map::new(),
             &mut payload.as_slice(),
-            &mut signer,
+            signer,
         )
         .unwrap();
     });
